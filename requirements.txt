@@ -1,0 +1,8 @@
+aiogram>=3.0,<4.0
+aiosqlite>=0.19
+httpx>=0.24
+python-dotenv>=1.0
+PyYAML>=6.0
+pydantic>=2.0
+pytest-asyncio>=0.23
+pytest>=7.0

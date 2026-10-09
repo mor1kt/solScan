@@ -1,0 +1,7 @@
+{
+  "inputMint": "Mint111111111111111111111111111111111111111",
+  "outputMint": "So11111111111111111111111111111111111111112",
+  "inAmount": "1000000",
+  "outAmount": "10000",
+  "routePlan": [{"swapInfo": {"label": "Raydium"}, "percent": 100}]
+}

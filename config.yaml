@@ -1,0 +1,53 @@
+filters:
+  min_liquidity_usd: 10000
+  min_volume_h1: 5000
+  min_pair_age_minutes: 5
+  max_pair_age_hours: 72
+  min_buys_h1: 10
+  max_sell_buy_ratio: 2.0
+  min_market_cap: 0
+  max_fdv: 10000000
+security:
+  max_top10_holder_percent: 30
+  max_risk_score: 500
+  require_revoked_authorities: true
+  require_locked_or_burned_lp: true
+  cache_minutes: 30
+  max_concurrent_requests: 4
+  request_timeout_seconds: 15
+  jupiter_sell_amount_raw: 1000000
+  jupiter_output_mint: So11111111111111111111111111111111111111112
+  jupiter_slippage_bps: 100
+narrative:
+  provider: ""
+  cache_minutes: 1440
+  pause_seconds: 2
+  daily_limit: 100
+  max_website_bytes: 200000
+  max_website_chars: 6000
+  request_timeout_seconds: 20
+  max_similar_tokens: 10
+  gemini_model: gemini-2.0-flash
+  gemini_url: https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent
+  groq_model: llama-3.1-8b-instant
+  groq_url: https://api.groq.com/openai/v1/chat/completions
+scoring:
+  weights:
+    liquidity_volume: 0.25
+    holder_structure: 0.20
+    security: 0.25
+    trading_dynamics: 0.15
+    narrative: 0.15
+  alert_threshold: 70
+  repeat_score_delta: 5
+outcomes:
+  enabled: true
+  check_interval_seconds: 60
+  max_outcomes_per_run: 20
+  horizons_minutes: [15, 60, 360, 1440]
+shadow:
+  enabled: false
+runtime:
+  max_tokens_per_run: 12
+  max_outcomes_per_run: 20
+  run_once_timeout_seconds: 220

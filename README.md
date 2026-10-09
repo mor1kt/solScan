@@ -77,6 +77,24 @@ shadow:
 
 В Telegram-команде `/stats` доступна короткая сводка по алертам.
 
+## GitHub Actions
+
+Для бесплатного запуска без постоянно работающего процесса:
+
+1. Создайте репозиторий на GitHub и загрузите проект вместе с `.github/workflows/scanner.yml`.
+2. В `Settings → Secrets and variables → Actions` добавьте secrets: `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`, `SOLANA_RPC_URL` (необязательно — будет использован публичный RPC), а также один из `GEMINI_API_KEY` или `GROQ_API_KEY`.
+3. В разделе `Actions` разрешите workflows и запустите `Solana Scanner → Run workflow` вручную.
+4. Проверьте логи job и таблицу `alerts` после первого запуска. Workflow запускается командой `python -m src.main run-once`; SQLite сохраняется через Actions cache в `data/solana_scanner.db`.
+
+Для локального запуска с тем же режимом:
+
+```powershell
+$env:DB_PATH = "data/solana_scanner.db"
+python -m src.main run-once
+```
+
+GitHub Actions cron не гарантирует запуск ровно в указанную минуту: возможна задержка при нагрузке. GitHub также может автоматически отключить scheduled workflows в репозитории с длительным отсутствием активности; после этого workflow нужно повторно активировать или запустить вручную.
+
 ## Security-проверки
 
 После прохождения дешёвых фильтров токен проверяется бесплатными read-only запросами к RugCheck, Solana RPC и Jupiter Quote. Настройки находятся в секции `security` файла `config.yaml`. RPC URL можно заменить через `SOLANA_RPC_URL` в `.env`.

@@ -1,0 +1,11 @@
+{
+  "score": 120,
+  "risks": [],
+  "topHolders": [
+    {"address": "pool", "pct": 8, "isPool": true},
+    {"address": "holder1", "pct": 12},
+    {"address": "holder2", "pct": 8}
+  ],
+  "markets": [{"lp": {"lpLockedPct": 95}}],
+  "creator": {"address": "Creator111", "balance": 10}
+}
