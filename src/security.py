@@ -10,10 +10,10 @@ import httpx
 
 try:
     from .config import filter_config, security_config, settings, shadow_config
-    from .db import get_recent_security_mints, save_security_results, update_token_status, save_alert, has_recent_shadow_alert
+    from .db import get_recent_security_statuses, save_security_results, update_token_status, save_alert, has_recent_shadow_alert
 except ImportError:
     from config import filter_config, security_config, settings
-    from db import get_recent_security_mints, save_security_results, update_token_status, save_alert, has_recent_shadow_alert
+    from db import get_recent_security_statuses, save_security_results, update_token_status, save_alert, has_recent_shadow_alert
     from config import shadow_config
 
 logger = logging.getLogger(__name__)
@@ -149,12 +149,18 @@ async def secure_token(token: dict[str, Any], client: httpx.AsyncClient, semapho
 async def secure_accepted_tokens(tokens: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """Check accepted cheap-filter tokens, respecting cache and concurrency limits."""
     cutoff = datetime.now(timezone.utc) - timedelta(minutes=security_config["cache_minutes"])
-    recent = await get_recent_security_mints(cutoff.isoformat())
-    candidates = [token for token in tokens if token["mint"] not in recent]
+    recent_statuses = await get_recent_security_statuses(cutoff.isoformat())
+    candidates = [token for token in tokens if token["mint"] not in recent_statuses]
+    cached_accepted = [token for token in tokens if recent_statuses.get(token["mint"]) is True]
+    cached_rejected = [token for token in tokens if recent_statuses.get(token["mint"]) is False]
+    for token in cached_accepted:
+        logger.info("Security cached accepted %s", token["mint"])
+    for token in cached_rejected:
+        logger.info("Security cached rejected %s", token["mint"])
     semaphore = asyncio.Semaphore(security_config["max_concurrent_requests"])
     async with httpx.AsyncClient(timeout=security_config["request_timeout_seconds"]) as client:
         results = await asyncio.gather(*(secure_token(token, client, semaphore) for token in candidates), return_exceptions=True)
-    passed_tokens = []
+    passed_tokens = list(cached_accepted)
     for token, result in zip(candidates, results):
         if isinstance(result, Exception):
             logger.error("Security check failed for %s: %s", token["mint"], result)

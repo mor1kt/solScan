@@ -179,6 +179,17 @@ async def get_recent_security_mints(cutoff_iso: str) -> set[str]:
     return {row[0] for row in rows}
 
 
+async def get_recent_security_statuses(cutoff_iso: str) -> dict[str, bool]:
+    await init_db()
+    async with aiosqlite.connect(_database_path()) as connection:
+        cursor = await connection.execute(
+            "SELECT mint, MIN(passed) FROM security_results WHERE checked_at >= ? GROUP BY mint",
+            (cutoff_iso,),
+        )
+        rows = await cursor.fetchall()
+    return {row[0]: bool(row[1]) for row in rows}
+
+
 async def update_token_status(mint: str, status: str, reason: str) -> None:
     await init_db()
     async with aiosqlite.connect(_database_path()) as connection:
