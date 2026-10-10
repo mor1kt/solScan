@@ -133,6 +133,10 @@ async def secure_token(token: dict[str, Any], client: httpx.AsyncClient, semapho
     checked_at = datetime.now(timezone.utc).isoformat()
     failed = [reason for _, passed, reason, _ in results if not passed]
     accepted = not failed
+    if not accepted:
+        logger.info("Security rejected %s: %s", token["mint"], "; ".join(failed))
+    else:
+        logger.info("Security accepted %s", token["mint"])
     await save_security_results(token["mint"], results, checked_at)
     await update_token_status(token["mint"], "accepted" if accepted else "rejected", "; ".join(failed) or "security checks passed")
     if not accepted and shadow_config.get("enabled"):
